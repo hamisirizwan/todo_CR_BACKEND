@@ -19,7 +19,29 @@ const addTodo = (req, res) => {
     .catch((e) => res.json(e.message));
 };
 
+const deleteTodo = (req, res) => {
+  Todo.findByIdAndRemove(req.params.id)
+    .then((todo) => {
+      if (!todo) {
+        return res.status(404).json({
+          message: "user not found with id " + req.params.id,
+        });
+      }
+      res.json({ message: "user deleted successfully!" });
+    })
+    .catch((err) => {
+      if (err.kind === "ObjectId" || err.name === "NotFound") {
+        return res.status(404).json({
+          message: "user not found with id " + req.params.id,
+        });
+      }
+      return res.status(500).json({
+        message: "Could not delete user with id " + req.params.id,
+      });
+    });
+};
 module.exports = {
   getTodos,
   addTodo,
+  deleteTodo,
 };
