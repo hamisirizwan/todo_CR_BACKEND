@@ -1,4 +1,5 @@
 const Todo = require("../models/todoModel");
+require("dotenv").config();
 
 const getTodos = (req, res) => {
   Todo.find(function (err, data) {
@@ -69,10 +70,44 @@ const updateTodo = (req, res) => {
       });
     });
 };
+// AfricasTalking credantials
+const credentials = {
+  apiKey: process.env.AT_API_KEY,
+  username: process.env.AT_USERNAME,
+};
+
+// Initialize the SDK
+const AfricasTalking = require("africastalking")(credentials);
+
+// Get the SMS service
+const sms = AfricasTalking.SMS;
+
+const sendMessage = async (req, res) => {
+  const msg = req.body.name;
+  const options = {
+    // Set the numbers you want to send to in international format
+    to: "+254768793923",
+    // Set your message
+    message: `hello ${msg}`,
+    // Set your shortCode or senderId
+    // from: 'XXYYZZ'
+  };
+
+  // That’s it, hit send and we’ll take care of the rest
+  await sms
+    .send(options)
+    .then(() => {
+      res.status(200).json("sent successfully");
+    })
+    .catch((err) => {
+      res.status(500).json("could not send sms");
+    });
+};
 
 module.exports = {
   getTodos,
   addTodo,
   deleteTodo,
   updateTodo,
+  sendMessage,
 };
